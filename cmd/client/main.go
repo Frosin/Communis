@@ -4,7 +4,7 @@ import (
 	_ "image/png"
 	"log"
 
-	"test/inner/game"
+	"github.com/Frosin/Communis/inner/game"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )

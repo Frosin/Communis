@@ -2,9 +2,10 @@ package game
 
 import (
 	"fmt"
-	"test/inner/consts"
-	"test/inner/gamemap"
-	"test/inner/hero"
+
+	"github.com/Frosin/Communis/inner/consts"
+	"github.com/Frosin/Communis/inner/gamemap"
+	"github.com/Frosin/Communis/inner/hero"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	util "github.com/hajimehoshi/ebiten/v2/inpututil"

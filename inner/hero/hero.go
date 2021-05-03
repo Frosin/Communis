@@ -6,7 +6,8 @@ import (
 	_ "image/png"
 	"log"
 	"os"
-	"test/inner/consts"
+
+	"github.com/Frosin/Communis/inner/consts"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"

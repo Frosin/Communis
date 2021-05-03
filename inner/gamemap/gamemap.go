@@ -2,7 +2,8 @@ package gamemap
 
 import (
 	"image/color"
-	"test/inner/consts"
+
+	"github.com/Frosin/Communis/inner/consts"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
