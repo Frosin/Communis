@@ -14,17 +14,18 @@ import (
 type Game struct {
 	ScreenWidth,
 	ScreenHeight int
-	Count   int
-	Hero    *hero.Hero
-	Map     *gamemap.Map
-	moveKey uint8
+	Count        int
+	Hero         *hero.Hero
+	Map          *gamemap.Map
+	moveKey      uint8
+	heroX, heroY int
 }
 
 func (g *Game) Update() error {
 	g.Count++
 
 	g.checkKeyboard()
-	g.Map.Update(g.moveKey)
+	g.Map.Update(g.moveKey, g.heroX, g.heroY)
 	g.Hero.UpdatePosition(g.Count, g.moveKey)
 	g.calculateUnitPosition()
 
@@ -62,11 +63,11 @@ func (g *Game) checkKeyboard() {
 
 func (g *Game) calculateUnitPosition() {
 	backX, backY := g.Map.GetPosition()
-	uX := g.ScreenWidth/2 - backX
-	uY := g.ScreenHeight/2 - backY
+	g.heroX = g.ScreenWidth/2 - backX
+	g.heroY = g.ScreenHeight/2 - backY
 	//debug
-	fmt.Printf("unitX=%d\n", uX)
-	fmt.Printf("unitY=%d\n", uY)
+	fmt.Printf("unitX=%d\n", g.heroX)
+	fmt.Printf("unitY=%d\n", g.heroY)
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
