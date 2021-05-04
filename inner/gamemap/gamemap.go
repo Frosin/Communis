@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	backWidth = 200
+	backWidth = 400
 )
 
 type limitParams struct {

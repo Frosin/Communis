@@ -19,6 +19,7 @@ type Game struct {
 	Map          *gamemap.Map
 	moveKey      uint8
 	heroX, heroY int
+	leftIsLast   bool
 }
 
 func (g *Game) Update() error {
@@ -47,17 +48,27 @@ func (g *Game) checkKeyboard() {
 	}
 	if util.IsKeyJustPressed(ebiten.KeyLeft) {
 		g.moveKey |= consts.LeftKey
-		g.moveKey |= consts.LeftMirror
+		g.leftIsLast = true
 	}
 	if util.IsKeyJustReleased(ebiten.KeyLeft) {
 		g.moveKey &^= consts.LeftKey
 	}
 	if util.IsKeyJustPressed(ebiten.KeyRight) {
 		g.moveKey |= consts.RightKey
-		g.moveKey &^= consts.LeftMirror
+		g.leftIsLast = false
 	}
 	if util.IsKeyJustReleased(ebiten.KeyRight) {
 		g.moveKey &^= consts.RightKey
+	}
+	//if finally right pressed
+	if 0 != consts.RightKey&g.moveKey {
+		g.moveKey &^= consts.LeftMirror
+		g.leftIsLast = false
+	}
+	//if finally lefdt pressed
+	if 0 != consts.LeftKey&g.moveKey || g.leftIsLast {
+		g.moveKey |= consts.LeftMirror
+		g.leftIsLast = true
 	}
 }
 
