@@ -13,19 +13,21 @@ const (
 	backWidth = 200
 )
 
+type limitParams struct {
+	x, y, w, h int
+}
+
 type Map struct {
 	backX,
 	backY,
 	backWidth int
-	limitFns []checkLimit
+	limits []limitParams
 }
-
-type checkLimit func(heroX, heroY int) bool
 
 func New() *Map {
 	newMap := Map{
 		0, 0, backWidth,
-		make([]checkLimit, 0),
+		make([]limitParams, 0),
 	}
 	newMap.SetLimit(50, 70, 30, 50)
 	newMap.SetLimit(100, 150, 30, 50)
@@ -82,8 +84,11 @@ func (m *Map) GetPosition() (int, int) {
 }
 
 func (m *Map) isHeroValidPosition(uX, uY int) bool {
-	for _, fn := range m.limitFns {
-		if fn(uX, uY) {
+	for _, l := range m.limits {
+		if uX > l.x &&
+			uX < l.x+l.w &&
+			uY > l.y &&
+			uY < l.y+l.h {
 			return false
 		}
 	}
@@ -91,14 +96,5 @@ func (m *Map) isHeroValidPosition(uX, uY int) bool {
 }
 
 func (m *Map) SetLimit(rectX, rectY, rectWidth, rectHeight int) {
-	checkFn := func(heroX, heroY int) bool {
-		if heroX > rectX &&
-			heroX < rectX+rectWidth &&
-			heroY > rectY &&
-			heroY < rectY+rectHeight {
-			return true
-		}
-		return false
-	}
-	m.limitFns = append(m.limitFns, checkFn)
+	m.limits = append(m.limits, limitParams{rectX, rectY, rectWidth, rectHeight})
 }
