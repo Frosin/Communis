@@ -26,7 +26,7 @@ func (g *Game) Update() error {
 	g.Count++
 
 	g.checkKeyboard()
-	g.Map.Update(g.moveKey, g.heroX, g.heroY)
+	g.Map.Update(g.moveKey, g.heroX, g.heroY, g.Count)
 	g.Hero.UpdatePosition(g.Count, g.moveKey)
 	g.calculateUnitPosition()
 

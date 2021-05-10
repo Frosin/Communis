@@ -1,15 +1,10 @@
-package hero
+package unit
 
 import (
 	"image"
-	"image/color"
-	_ "image/png"
 
-	"github.com/Frosin/Communis/inner/consts"
 	"github.com/Frosin/Communis/res"
-
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 type drawParams struct {
@@ -28,62 +23,58 @@ type unitPosition struct {
 	leftMirror bool
 }
 
-type Hero struct {
+type Unit struct {
 	drawParams
 	unitPosition
-	Count int
-	ScreenWidth,
-	ScreenHeight int
+	Count,
+	backX,
+	backY,
+	X,
+	Y int
 }
 
-func (u *Hero) prepereImage() {
-	u.unitImage = res.LoadRunner()
+func (u *Unit) prepereImage() {
+	u.unitImage = res.LoadGnome()
 }
 
-func NewHero(screenWidth, screenHeight int) *Hero {
-	u := Hero{
+func NewUnit(backX, backY, x, y int) *Unit {
+	u := Unit{
 		drawParams: drawParams{
 			startFrameOX:     0,
-			startFrameOY:     32,
-			frameWidth:       32,
+			startFrameOY:     160,
+			frameWidth:       38,
 			frameHeight:      32,
 			frameWidthFloat:  32,
 			frameHeightFloat: 32,
-			frameNum:         8,
+			frameNum:         5,
 			frameSpeed:       6,
 		},
-		ScreenWidth:  screenWidth,
-		ScreenHeight: screenHeight,
+		backX: backX,
+		backY: backY,
+		X:     x,
+		Y:     y,
 	}
 	u.prepereImage()
 	return &u
 }
 
-func (u *Hero) Draw(screen *ebiten.Image) {
+func (u *Unit) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
 	if u.leftMirror {
 		op.GeoM.Scale(-1, 1)
 		op.GeoM.Translate(float64(u.frameWidth), 0)
 	}
-	finalX := float64(u.ScreenWidth)/2 - u.frameWidthFloat/2
-	finalY := float64(u.ScreenHeight)/2 - u.frameHeightFloat
-	op.GeoM.Translate(finalX, finalY)
+	op.GeoM.Translate(float64(u.backX+u.X), float64(u.backY+u.Y))
 
 	i := (u.Count / u.frameSpeed) % u.frameNum
 	sx, sy := u.startFrameOX+i*u.frameWidth, u.startFrameOY
 	screen.DrawImage(u.unitImage.SubImage(image.Rect(sx, sy, sx+u.frameWidth, sy+u.frameHeight)).(*ebiten.Image), op)
-	//debug point
-	ebitenutil.DrawRect(
-		screen,
-		finalX+u.frameWidthFloat/2,
-		finalY+u.frameHeightFloat,
-		2,
-		2,
-		color.RGBA{255, 0, 0, 255},
-	)
 }
 
-func (u *Hero) UpdatePosition(count int, moveKey uint8) {
+func (u *Unit) UpdatePosition(count, backX, backY int) {
 	u.Count = count
-	u.leftMirror = 0 != consts.LeftMirror&moveKey
+	u.backX = backX
+	u.backY = backY
+
+	//u.leftMirror = 0 != consts.LeftMirror&moveKey
 }
