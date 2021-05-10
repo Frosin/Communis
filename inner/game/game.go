@@ -1,8 +1,6 @@
 package game
 
 import (
-	"fmt"
-
 	"github.com/Frosin/Communis/inner/consts"
 	"github.com/Frosin/Communis/inner/gamemap"
 	"github.com/Frosin/Communis/inner/hero"
@@ -77,8 +75,8 @@ func (g *Game) calculateUnitPosition() {
 	g.heroX = g.ScreenWidth/2 - backX
 	g.heroY = g.ScreenHeight/2 - backY
 	//debug
-	fmt.Printf("unitX=%d\n", g.heroX)
-	fmt.Printf("unitY=%d\n", g.heroY)
+	// fmt.Printf("unitX=%d\n", g.heroX)
+	// fmt.Printf("unitY=%d\n", g.heroY)
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {

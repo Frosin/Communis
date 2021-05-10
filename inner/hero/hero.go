@@ -36,12 +36,12 @@ type Hero struct {
 	ScreenHeight int
 }
 
-func (u *Hero) prepereImage() {
-	u.unitImage = res.LoadRunner()
+func (h *Hero) prepereImage() {
+	h.unitImage = res.LoadRunner()
 }
 
 func NewHero(screenWidth, screenHeight int) *Hero {
-	u := Hero{
+	h := Hero{
 		drawParams: drawParams{
 			startFrameOX:     0,
 			startFrameOY:     32,
@@ -55,35 +55,43 @@ func NewHero(screenWidth, screenHeight int) *Hero {
 		ScreenWidth:  screenWidth,
 		ScreenHeight: screenHeight,
 	}
-	u.prepereImage()
-	return &u
+	h.prepereImage()
+	return &h
 }
 
-func (u *Hero) Draw(screen *ebiten.Image) {
+func (h *Hero) Draw(screen *ebiten.Image) {
+	//debug
+	//println("count=", h.Count)
 	op := &ebiten.DrawImageOptions{}
-	if u.leftMirror {
+	if h.leftMirror {
 		op.GeoM.Scale(-1, 1)
-		op.GeoM.Translate(float64(u.frameWidth), 0)
+		op.GeoM.Translate(float64(h.frameWidth), 0)
 	}
-	finalX := float64(u.ScreenWidth)/2 - u.frameWidthFloat/2
-	finalY := float64(u.ScreenHeight)/2 - u.frameHeightFloat
+	finalX := float64(h.ScreenWidth)/2 - h.frameWidthFloat/2
+	finalY := float64(h.ScreenHeight)/2 - h.frameHeightFloat
 	op.GeoM.Translate(finalX, finalY)
 
-	i := (u.Count / u.frameSpeed) % u.frameNum
-	sx, sy := u.startFrameOX+i*u.frameWidth, u.startFrameOY
-	screen.DrawImage(u.unitImage.SubImage(image.Rect(sx, sy, sx+u.frameWidth, sy+u.frameHeight)).(*ebiten.Image), op)
+	i := (h.Count / h.frameSpeed) % h.frameNum
+	sx, sy := h.startFrameOX+i*h.frameWidth, h.startFrameOY
+	screen.DrawImage(h.unitImage.SubImage(image.Rect(sx, sy, sx+h.frameWidth, sy+h.frameHeight)).(*ebiten.Image), op)
 	//debug point
 	ebitenutil.DrawRect(
 		screen,
-		finalX+u.frameWidthFloat/2,
-		finalY+u.frameHeightFloat,
+		finalX+h.frameWidthFloat/2,
+		finalY+h.frameHeightFloat,
 		2,
 		2,
 		color.RGBA{255, 0, 0, 255},
 	)
 }
 
-func (u *Hero) UpdatePosition(count int, moveKey uint8) {
-	u.Count = count
-	u.leftMirror = 0 != consts.LeftMirror&moveKey
+func (h *Hero) UpdatePosition(count int, moveKey uint8) {
+	if moveKey != 0 && moveKey != 16 {
+		h.Count = count
+		h.startFrameOY = 32
+		h.leftMirror = 0 != consts.LeftMirror&moveKey
+	} else {
+		h.Count = 0
+		h.startFrameOY = 0
+	}
 }
