@@ -1,4 +1,4 @@
-package unit
+package logic
 
 import (
 	"fmt"
@@ -16,10 +16,9 @@ type target struct {
 	escapeY    bool //escape flag by Y
 }
 
-type unitLogic struct {
+type EscapeLogic struct {
 	targets    []target
 	limits     *limits.Limits
-	isIdle     bool
 	navigation uint8
 }
 
@@ -27,26 +26,25 @@ var (
 	escapeStep = 5
 )
 
-func newLogic(limits *limits.Limits) unitLogic {
-	return unitLogic{
+func NewLogic(limits *limits.Limits) EscapeLogic {
+	return EscapeLogic{
 		limits: limits,
 	}
 }
 
-func (u *unitLogic) SetTarget(tX, tY int) {
+func (u *EscapeLogic) SetTarget(tX, tY int) {
 	u.targets = append(u.targets, target{tX, tY, random.HeadsOrTails(), false, false})
-	u.isIdle = false
 }
 
-func (u *unitLogic) getNavigationX() bool {
+func (u *EscapeLogic) getNavigationX() bool {
 	return 0 == consts.Left&u.navigation
 }
 
-func (u *unitLogic) getNavigationY() bool {
+func (u *EscapeLogic) getNavigationY() bool {
 	return 0 == consts.Up&u.navigation
 }
 
-func (u *unitLogic) setNavigation(newNav uint8) {
+func (u *EscapeLogic) setNavigation(newNav uint8) {
 	switch newNav {
 	case consts.Up:
 		u.navigation &^= consts.Down
@@ -63,7 +61,7 @@ func (u *unitLogic) setNavigation(newNav uint8) {
 	}
 }
 
-func (u *unitLogic) detectBigDeadlock() {
+func (u *EscapeLogic) detectBigDeadlock() {
 	if len(u.targets) > 5 {
 		//debug
 		fmt.Println("targets:", u.targets)
@@ -71,7 +69,7 @@ func (u *unitLogic) detectBigDeadlock() {
 	}
 }
 
-func (u *unitLogic) addEscapeTargetByY(curX, curY int) {
+func (u *EscapeLogic) addEscapeTargetByY(curX, curY int) {
 	var newTarget target
 	if u.getNavigationY() {
 		newTarget = target{curX, curY + escapeStep, true, false, true}
@@ -81,7 +79,7 @@ func (u *unitLogic) addEscapeTargetByY(curX, curY int) {
 	u.targets[0] = newTarget
 }
 
-func (u *unitLogic) addEscapeTargetByX(curX, curY int) {
+func (u *EscapeLogic) addEscapeTargetByX(curX, curY int) {
 	var newTarget target
 	if u.getNavigationX() {
 		newTarget = target{curX + escapeStep, curY, true, true, false}
@@ -91,7 +89,7 @@ func (u *unitLogic) addEscapeTargetByX(curX, curY int) {
 	u.targets[0] = newTarget
 }
 
-func (u *unitLogic) NextXY(curX, curY int) (int, int) {
+func (u *EscapeLogic) NextXY(curX, curY int) (int, int) {
 	if len(u.targets) == 0 {
 		log.Println("no targets!")
 		return curX, curY
@@ -122,7 +120,6 @@ func (u *unitLogic) NextXY(curX, curY int) (int, int) {
 	}
 	//finish moving
 	if curX == u.targets[0].tX && curY == u.targets[0].tY {
-		u.isIdle = true
 		//next target
 		//if it is escape by X target
 		if u.targets[0].escapeX {
@@ -202,6 +199,6 @@ func (u *unitLogic) NextXY(curX, curY int) (int, int) {
 	return newX, newY
 }
 
-func (u *unitLogic) haveTargets() bool {
+func (u *EscapeLogic) HaveTargets() bool {
 	return len(u.targets) != 0
 }

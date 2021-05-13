@@ -65,7 +65,7 @@ func (m *Map) Update(moveKey uint8, heroX, heroY, count int) {
 	curX, curY := ebiten.CursorPosition()
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) &&
 		m.limits.IsValidPosition(curX-m.backX, curY-m.backY) {
-		m.unit.SetTarget(curX-m.backX, curY-m.backY)
+		m.unit.Logic.SetTarget(curX-m.backX, curY-m.backY)
 		fmt.Println("set target:", curX-m.backX, curY-m.backY)
 	}
 

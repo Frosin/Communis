@@ -5,6 +5,7 @@ import (
 	"image/color"
 
 	"github.com/Frosin/Communis/inner/limits"
+	"github.com/Frosin/Communis/inner/logic"
 	"github.com/Frosin/Communis/res"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -29,7 +30,7 @@ type unitPosition struct {
 type Unit struct {
 	drawParams
 	unitPosition
-	unitLogic
+	Logic logic.EscapeLogic
 	Count,
 	backX,
 	backY,
@@ -50,16 +51,16 @@ func NewUnit(backX, backY, x, y int, limits *limits.Limits) *Unit {
 			frameHeight:      24,
 			frameWidthFloat:  38,
 			frameHeightFloat: 24,
-			frameNum:         1, //5,
+			frameNum:         5,
 			frameSpeed:       6,
 		},
-		backX:     backX,
-		backY:     backY,
-		X:         x,
-		Y:         y,
-		unitLogic: newLogic(limits),
+		backX: backX,
+		backY: backY,
+		X:     x,
+		Y:     y,
+		Logic: logic.NewLogic(limits),
 	}
-	u.SetTarget(200, 80)
+	u.Logic.SetTarget(200, 80)
 	u.prepereImage()
 	return &u
 }
@@ -87,12 +88,14 @@ func (u *Unit) Draw(screen *ebiten.Image) {
 }
 
 func (u *Unit) UpdatePosition(count, backX, backY int) {
-	u.Count = count
 	u.backX = backX
 	u.backY = backY
 
-	if u.haveTargets() {
-		u.X, u.Y = u.NextXY(u.X, u.Y)
+	if u.Logic.HaveTargets() {
+		u.X, u.Y = u.Logic.NextXY(u.X, u.Y)
+		u.Count = count
+	} else {
+		u.Count = 0
 	}
 
 	//u.calculateLogic()
