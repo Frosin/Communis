@@ -4,6 +4,7 @@ import (
 	"github.com/Frosin/Communis/inner/consts"
 	"github.com/Frosin/Communis/inner/gamemap"
 	"github.com/Frosin/Communis/inner/hero"
+	"github.com/Frosin/Communis/inner/limits"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	util "github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -89,10 +90,11 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func New(screenWidth, screenHeight int) *Game {
+	limits := limits.NewLimits()
 	return &Game{
 		ScreenWidth:  screenWidth,
 		ScreenHeight: screenHeight,
 		Hero:         hero.NewHero(screenWidth, screenHeight),
-		Map:          gamemap.New(),
+		Map:          gamemap.New(limits),
 	}
 }
