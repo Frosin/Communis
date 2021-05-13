@@ -10,10 +10,10 @@ import (
 )
 
 type target struct {
-	tX, tY int
-	headsOrTails,
-	escapeX,
-	escapeY bool
+	tX, tY     int  //target coordinates
+	navigation bool //escape navigation
+	escapeX    bool //escape flag by X
+	escapeY    bool //escape flag by Y
 }
 
 type unitLogic struct {
@@ -71,6 +71,26 @@ func (u *unitLogic) detectBigDeadlock() {
 	}
 }
 
+func (u *unitLogic) addEscapeTargetByY(curX, curY int) {
+	var newTarget target
+	if u.getNavigationY() {
+		newTarget = target{curX, curY + escapeStep, true, false, true}
+	} else {
+		newTarget = target{curX, curY - escapeStep, false, false, true}
+	}
+	u.targets[0] = newTarget
+}
+
+func (u *unitLogic) addEscapeTargetByX(curX, curY int) {
+	var newTarget target
+	if u.getNavigationX() {
+		newTarget = target{curX + escapeStep, curY, true, true, false}
+	} else {
+		newTarget = target{curX - escapeStep, curY, false, true, false}
+	}
+	u.targets[0] = newTarget
+}
+
 func (u *unitLogic) NextXY(curX, curY int) (int, int) {
 	if len(u.targets) == 0 {
 		log.Println("no targets!")
@@ -78,23 +98,26 @@ func (u *unitLogic) NextXY(curX, curY int) (int, int) {
 	}
 	u.detectBigDeadlock()
 
+	//check limits and calculate new position
 	newX, newY := curX, curY
-
 	if u.targets[0].tY > curY && u.limits.IsValidPosition(curX, curY+1) {
 		newY++
-		//set down direction
+		//set down direction for new escape target navigation
 		u.setNavigation(consts.Down)
 	}
 	if u.targets[0].tY < curY && u.limits.IsValidPosition(curX, curY-1) {
 		newY--
+		//set up direction for new escape target navigation
 		u.setNavigation(consts.Up)
 	}
 	if u.targets[0].tX > curX && u.limits.IsValidPosition(curX+1, curY) {
 		newX++
+		//set right direction for new escape target navigation
 		u.setNavigation(consts.Right)
 	}
 	if u.targets[0].tX < curX && u.limits.IsValidPosition(curX-1, curY) {
 		newX--
+		//set left direction for new escape target navigation
 		u.setNavigation(consts.Left)
 	}
 	//finish moving
@@ -105,27 +128,16 @@ func (u *unitLogic) NextXY(curX, curY int) (int, int) {
 		if u.targets[0].escapeX {
 			//if escape didn't finish
 			//add new target for continue escape
-			var newTarget target
 			if u.targets[1].tY > curY {
 				if !u.limits.IsValidPosition(curX, curY+1) {
-					if u.targets[0].headsOrTails {
-						newTarget = target{curX + escapeStep, u.targets[0].tY, true, true, false}
-					} else {
-						newTarget = target{curX - escapeStep, u.targets[0].tY, false, true, false}
-					}
-					u.targets[0] = newTarget
+					u.addEscapeTargetByX(curX, u.targets[0].tY)
 				} else {
 					u.targets = u.targets[1:]
 					newY++
 				}
 			} else {
 				if !u.limits.IsValidPosition(curX, curY-1) {
-					if u.targets[0].headsOrTails {
-						newTarget = target{curX + escapeStep, u.targets[0].tY, true, true, false}
-					} else {
-						newTarget = target{curX - escapeStep, u.targets[0].tY, false, true, false}
-					}
-					u.targets[0] = newTarget
+					u.addEscapeTargetByX(curX, u.targets[0].tY)
 				} else {
 					u.targets = u.targets[1:]
 					newY--
@@ -135,33 +147,24 @@ func (u *unitLogic) NextXY(curX, curY int) (int, int) {
 		} else if u.targets[0].escapeY {
 			//if escape didn't finish
 			//add new target for continue escape
-			var newTarget target
 			if u.targets[1].tX > curX {
 				if !u.limits.IsValidPosition(curX+1, curY) {
-					if u.targets[0].headsOrTails {
-						newTarget = target{u.targets[0].tX, curY + escapeStep, true, false, true}
-					} else {
-						newTarget = target{u.targets[0].tX, curY - escapeStep, false, false, true}
-					}
-					u.targets[0] = newTarget
+					u.addEscapeTargetByY(u.targets[0].tX, curY)
 				} else {
 					u.targets = u.targets[1:]
 					newX++
 				}
 			} else {
 				if !u.limits.IsValidPosition(curX-1, curY) {
-					if u.targets[0].headsOrTails {
-						newTarget = target{u.targets[0].tX, curY + escapeStep, true, false, true}
-					} else {
-						newTarget = target{u.targets[0].tX, curY - escapeStep, false, false, true}
-					}
-					u.targets[0] = newTarget
+					u.addEscapeTargetByY(u.targets[0].tX, curY)
 				} else {
 					u.targets = u.targets[1:]
 					newX--
 				}
 			}
 		} else {
+			//its no escape target
+			//just clean it
 			if len(u.targets) == 1 {
 				u.targets = nil
 			} else {
@@ -171,7 +174,6 @@ func (u *unitLogic) NextXY(curX, curY int) (int, int) {
 		}
 		return newX, newY
 	}
-
 	//if no changes, it is deadlock
 	//we will set terget for escape
 	if newX == curX && newY == curY {
